@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
+
+	"github.com/briandowns/spinner"
 
 	"github.com/TejasGhatte/go-sail/internal/helpers"
 	"github.com/TejasGhatte/go-sail/internal/initializers"
@@ -14,6 +17,9 @@ import (
 func CreateProject(name string) error {
 	framework := prompts.SelectFramework()
 	database := prompts.SelectDatabase()
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+	s.Start()
+	defer s.Stop()
 
 	var orm string
 	if database != "" {
@@ -21,8 +27,8 @@ func CreateProject(name string) error {
 	}
 
 	fmt.Println("Generating project with the following options:")
-    fmt.Printf("Framework: %s, Database: %s, ORM: %s\n", framework, database, orm)
-	
+	fmt.Printf("Framework: %s, Database: %s, ORM: %s\n", framework, database, orm)
+
 	options := &models.Options{
 		ProjectName: name,
 		Framework:   framework,
@@ -34,7 +40,9 @@ func CreateProject(name string) error {
 	if err != nil {
 		return err
 	}
+	time.Sleep(5 * time.Second)
 
+	fmt.Println("Project created successfully!")
 	return nil
 }
 
