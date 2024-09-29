@@ -31,22 +31,21 @@ combinations:
         - gorm.io/driver/postgres
     sqlx:
       dsnTemplate: "user=%s password=%s dbname=%s sslmode=disable"
-      initFunc: "sqlx.Connect"
+      initFunc: "sqlx.Connect(\"postgres\", dsn)"
   mysql:
     gorm:
       dsnTemplate: "%s:%s@tcp(localhost:3306)/%s?parseTime=true"
-      initFunc: "gorm.Open(mysql.Open, &gorm.Config{})(dsn)"
+      initFunc: "gorm.Open(mysql.Open(dsn), &gorm.Config{})"
       additionalImports:
         - gorm.io/driver/mysql
     sqlx:
       dsnTemplate: "%s:%s@tcp(localhost:3306)/%s?parseTime=true"
-      initFunc: "sqlx.Connect("mysql"(dsn)"
+      initFunc: "sqlx.Connect(\"mysql\", dsn)"
   sqlite:
     gorm:
       dsnTemplate: ""
       initFunc: ""
-      additionalImports:
-        - 
+      additionalImports: []
     sqlx:
       dsnTemplate: ""
       initFunc: ""
@@ -62,17 +61,17 @@ migrationCode:
       return fmt.Errorf("failed to run migrations: %w", err)
     }
   sqlx: |
-      migrations := []string{
-      // Add your migration SQL here
-      // "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, email TEXT);",
-      // "CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY, title TEXT, content TEXT, user_id INTEGER);",
+    migrations := []string{
+    // Add your migration SQL here
+    // "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, email TEXT);",
+    // "CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY, title TEXT, content TEXT, user_id INTEGER);",
+    }
+    fmt.Println("Running migrations")
+    for _, migration := range migrations {
+      _, err := DB.Exec(migration)
+      if err != nil {
+        fmt.Errorf("failed to run migrations: %w", err)
       }
-      fmt.Println("Running migrations")
-      for _, migration := range migrations {
-        _, err := DB.Exec(migration)
-        if err != nil {
-          fmt.Errorf("failed to run migrations: %w", err)
-        }
-      }
+    }
   default: |
     fmt.Println("No specific migration logic for this ORM. Implement custom migration logic here.")
