@@ -35,7 +35,7 @@ func (cp *CombinationProvider) GetImports() []string {
 }
 
 func (cp *CombinationProvider) GetConnectionCode() string {
-	return  fmt.Sprintf(`
+	return fmt.Sprintf(`
 	var err error
 	dsn := fmt.Sprintf(%q, "your_username", "your_password", "your_database")
 	DB, err = %s
@@ -56,11 +56,22 @@ func (cp *CombinationProvider) GetDBVariable() string {
 
 // ProviderFactory creates a provider for a specific database and ORM combination
 func ProviderFactory(database, orm string) (Provider, error) {
-	dbConfig := initializers.Config.Databases[database]
+	// **ADDED ERROR HANDLING**
+	dbConfig, dbExists := initializers.Config.Databases[database]
+	if !dbExists {
+		return nil, fmt.Errorf("database config for %q not found", database)
+	}
 
-	ormConfig := initializers.Config.ORMs[orm]
+	ormConfig, ormExists := initializers.Config.ORMs[orm]
+	if !ormExists {
+		return nil, fmt.Errorf("ORM config for %q not found", orm)
+	}
 
-	combinationConfig := initializers.Config.Combinations[database][orm]
+	combinationConfig, combinationExists := initializers.Config.Combinations[database][orm]
+	if !combinationExists {
+		return nil, fmt.Errorf("combination config for database %q and ORM %q not found", database, orm)
+	}
+	// **END ERROR HANDLING**
 
 	return &CombinationProvider{
 		Database:    dbConfig,
