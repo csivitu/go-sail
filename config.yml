@@ -42,14 +42,14 @@ combinations:
       dsnTemplate: "%s:%s@tcp(localhost:3306)/%s?parseTime=true"
       initFunc: "sqlx.Connect(\"mysql\", dsn)"
   sqlite:
-    gorm:
-      dsnTemplate: ""
-      initFunc: ""
+    gorm: # **FIXED**
+      dsnTemplate: "file:%s?cache=shared&mode=rwc"
+      initFunc: "gorm.Open(sqlite.Open(dsn), &gorm.Config{})"
       additionalImports:
-        - 
-    sqlx:
-      dsnTemplate: ""
-      initFunc: ""
+        - gorm.io/driver/sqlite
+    sqlx: # **FIXED**
+      dsnTemplate: "file:%s?cache=shared&mode=rwc"
+      initFunc: "sqlx.Connect(\"sqlite3\", dsn)"
 
 migrationCode:
   gorm: |
